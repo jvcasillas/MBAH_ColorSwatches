@@ -20,26 +20,37 @@
 # A & B - the further away from 0, the more saturated the color. 
 
 # Install and load packages in library. 
-install.packages("colorspace")
-install.packages("rstudioapi")
+# install.packages("colorspace")
+# install.packages("rstudioapi")
 library(colorspace) # Allows to simulate color vision deficiency using the simulate_cvd function.
 library(tidyverse)
 library(rstudioapi)
 
+
+# GENERATE N EQUILUMINANT COLORS ----
+
+
+# Plot available palettes.
+hcl_palettes(plot = TRUE)
+
 # Compute an n amount of colors from a different hue, while keeping luminance and chroma fixed.
 # HCL values represent polar coordinates in CIELUV space of existing RGB values with a reference greay value: #b0aca9 at luminance = 71
-stim_colors <- hclplot(qualitative_hcl(n = 4, c = 70, l = 71, fixup = TRUE))
+stim_colors <- hclplot(qualitative_hcl(n = 4, c = 70, l = 70, fixup = TRUE))
 plot(stim_colors)
 
 # Save the resulting matrix into a dataframe. Compute the difference in hue between adjacent values.
 stim_colors_df <- as.data.frame(stim_colors)
 stim_colors_df$hue_diff <- stim_colors_df$H - dplyr::lag(stim_colors_df$H, 1)
 
+
 # Compute descriptives of the hue difference.  
 mean(stim_colors_df$hue_diff, na.rm = TRUE)
 sd(stim_colors_df$hue_diff, na.rm = TRUE)
 
-# Generate pairs of complementary colors. 
+
+
+# PAIR COLOR COMPLEMENTS ----
+
 # Compute true complementary hues and find the best matching value within the existing color set. 
 closest_complement <- function(hue_vec, target_hue){
   # This function takes two arguments, a vector of hues and the target hue to find the closest match for.  
@@ -76,4 +87,4 @@ barplot(rep(1,length(stim_colors_matrix_hex)), col = stim_colors_matrix_hex_c)
 stim_colors_hex_df <- tibble(hex = stim_colors_matrix_hex, hex_c = stim_colors_matrix_hex_c)
 
 # Export as .csv.
-write.csv2(stim_colors_hex_df, file = 'MBAH_polarLUV-hex_L_C.csv', sep = ",", dec = ".", col.names = TRUE, row.names = TRUE)
+write.csv2(stim_colors_hex_df, file = 'MBAH_polarLUV-hex_L_C_new.csv', sep = ",", dec = ".", col.names = TRUE, row.names = TRUE)
